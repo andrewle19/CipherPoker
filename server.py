@@ -1,5 +1,6 @@
 import socket
 import time
+import random
 import threading
 from Crypto.Cipher import AES
 
@@ -10,12 +11,19 @@ port = 5000
 # list of clients
 clients = []
 
-gameStates = ['start','key1','key2','turn1','turn2']
+
 playerCount = 0
 sessionKeys = []
-state = gameStates[0]
+state = 0
 index = 0
 
+# The players win count and the hands of the players
+player1wins = 0
+player2wins = 0
+
+player1Hand = []
+player2Hand = []
+round = 0;
 # create a socket using IPV4 and TCP connections
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # bind the socket to this port
@@ -53,7 +61,7 @@ s.listen(2)
 print("Server Started.")
 while True:
         # on a connection retreve the connection and the address
-        if(state == gameStates[0]):
+        if(state == 0):
             connection, addr = s.accept()
             print("Incoming: ", addr)
             # cThread = threading.Thread(target=handler, args=(connection,addr))
@@ -72,12 +80,47 @@ while True:
             sessionKeys.append(data)
             encryption_suite = AES.new(sessionKeys[playerCount], AES.MODE_CFB, 'This is an IV456')
             cipher_text = encryption_suite.encrypt("Session Key was received")
+            print("sessionKeys:",sessionKeys[playerCount])
             print(cipher_text)
 
             playerCount += 1
             connection.send(cipher_text)
             if(playerCount == 2):
-                state = gameStates[1]
+                state = 1
+        if(state == 1):
+            for client in clients:
+                client.send(b"hands")
+            #Generate the keys for bt
+            for i in range(3):
+                player1Hand.append(random.randint(1,15))
+                player2Hand.append(random.randint(1,15))
+            hand = ''.join(str(player1Hand).strip('[]'))
+            print(hand)
+            clients[0].send(hand.encode('utf-8'))
+            hand = ''.join(str(player2Hand).strip('[]'))
+            print(hand)
+            clients[1].send(hand.encode('utf-8'))
+            state = 2
+        if(state == 2):
+
+            for client in clients:
+                client.send(b"turn1")
+            choice1 = ""
+            while not choice1:
+                choice1 = clients[0].recv(1024)
+            state = 3
+        if(state == 3):
+            for client in clients:
+                client.send(b"turn2")
+            choice2 = ""
+            while not choice2:
+                choice2 = clients[1].recv(1024)
+
+
+
+
+
+
 
         # if(state == gameStates[1]):
         #     data = clients[0].recv(1024)

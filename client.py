@@ -19,8 +19,10 @@ import os
 #         finally:
 #             tLock.release()
 
+# the state of the game
 gameStates = ['start','key1','key2','turn1','turn2']
 
+# The current player ID
 id = -1
 host = '127.0.0.1'
 port = 0
@@ -60,9 +62,9 @@ def sendMsg():
 #bind the socket to the address and random open port since port is set to 0
 s.bind((host, port))
 
-# sets to socket non blocking mode meaning if send / recv call receives/sends no data it wont raise error
-# s.setblocking(0)
 
+
+# start by connecting to the server
 s.connect(server)
 
 # ithread = threading.Thread(target=sendMsg)
@@ -70,30 +72,62 @@ s.connect(server)
 # ithread.start()
 state = 0
 while True:
-    data = s.recv(1024)
+    # receive data from server
 
 
-    if not data:
-        break
+    # if u disconnect break the loop
+    # if not data:
+    #     break
 
-
-
+    # state 0 is just staring the game off
+    # Sends the Session Keys
     if(state == 0):
+        data = s.recv(1024)
+        # Identifies the player on connection
         if(data.decode("utf-8") == "Player1"):
             id = 0
             print(data.decode("utf-8"))
         if(data.decode("utf-8") == "Player2"):
             id = 1
             print(data.decode("utf-8"))
-
+        data = s.recv(1024)
+        # When you receive the Welcome Send The Session Keys
         if(data.decode("utf-8") == "Welcome to the Game"):
             print(data.decode("utf-8"))
             s.sendto(random_key,server)
             state = 1
     if(state == 1):
+        # confirms with server it has received its keys
+        data = s.recv(1024)
         decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
         plain_text = decryption_suite.decrypt(data)
-        print("decrypt",plain_text)
+        print(plain_text)
+        state = 2
+
+    # in state 2 we receive our hands
+    if(state == 2):
+        data = s.recv(1024)
+        try:
+            if(data.decode('utf-8')=="hands"):
+                data = s.recv(1024)
+                hand = (data.decode('utf-8').split(","))
+        except UnicodeError:
+            pass
+        state = 3
+    if(state == 3):
+        turn = s.recv(1024)
+        if(turn.decode('utf-8') == "turn1"):
+            print("Player 1's Turn")
+            if(id == 0):
+                for i in range(len(hand)):
+                    print(i,":",hand[i])
+                choice = input("Choose Card for Round")
+        if(turn.decode('utf-8') == "turn2"):
+            print("Player 2's Turn")
+            if(id == 1):
+                for i in range(len(hand)):
+                    print(i,":",hand[i])
+                choice = input("Choose Card for Round")
 
 
 #
