@@ -111,25 +111,34 @@ while True:
             if(data.decode('utf-8')=="hands"):
                 data = s.recv(1024)
                 hand = (data.decode('utf-8').split(","))
+                print(hand)
         except UnicodeError:
             pass
         state = 3
     if(state == 3):
         turn = s.recv(1024)
+        if (turn.decode("utf-8") == "END"):
+            state = 4
         if(turn.decode('utf-8') == "turn1"):
             print("Player 1's Turn")
             if(id == 0):
                 for i in range(len(hand)):
                     print(i,":",hand[i])
-                choice = input("Choose Card for Round")
+                choice = int(input("Choose Card for Round: "))
+                s.sendto(bytes(str(hand[choice]).encode("utf-8")),server)
+                hand.pop(choice)
         if(turn.decode('utf-8') == "turn2"):
             print("Player 2's Turn")
             if(id == 1):
                 for i in range(len(hand)):
                     print(i,":",hand[i])
-                choice = input("Choose Card for Round")
-
-
+                choice = int(input("Choose Card for Round: "))
+                s.sendto(bytes(str(hand[choice]).encode("utf-8")),server)
+                hand.pop(choice)
+    if(state == 4):
+         results = s.recv(1024)
+         print(results)
+         break
 #
 # rT = threading.Thread(target=receving, args=("RecvThread",s))
 # rT.start()
