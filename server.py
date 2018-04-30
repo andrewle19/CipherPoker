@@ -62,7 +62,6 @@ while True:
             # send cipher text that server has received session keys
             cipher_text = encryption_suite.encrypt("Session Key was received")
             print("sessionKeys:",sessionKeys[playerCount])
-            print(cipher_text)
             # incrmenet the player count
             playerCount += 1
             # send the cipher text to player
@@ -82,15 +81,23 @@ while True:
 
             # join the hand list into one string
             hand = ''.join(str(player1Hand).strip('[]'))
-            print(hand)
             # send the hand to player1
-            clients[0].send(hand.encode('utf-8'))
+            encryption_suite = AES.new(sessionKeys[0], AES.MODE_CFB, 'This is an IV456')
+            decryption_suite = AES.new(sessionKeys[0], AES.MODE_CFB, 'This is an IV456')
+            hand = encryption_suite.encrypt(hand)
+
+
+            print("hand:",hand)
+            clients[0].send(hand)
+
 
             # join the hand list into one string
             hand = ''.join(str(player2Hand).strip('[]'))
-            print(hand)
+            encryption_suite = AES.new(sessionKeys[1], AES.MODE_CFB, 'This is an IV456')
+            hand = encryption_suite.encrypt(hand)
+            print("hand:",hand)
             # send hand to player 2
-            clients[1].send(hand.encode('utf-8'))
+            clients[1].send(hand)
 
             # send to state 2
             state = 2
@@ -103,7 +110,10 @@ while True:
             # get input choice form player1
             choice1 = ""
             while not choice1:
+                decryption_suite = AES.new(sessionKeys[0], AES.MODE_CFB, 'This is an IV456')
                 choice1 = clients[0].recv(1024)
+                choice1 = decryption_suite.decrypt(choice1)
+
             state = 3
 
         # State:3 Player2s turn: this is where the choice of player1 is received
@@ -112,13 +122,19 @@ while True:
                 client.send(b"turn2")
             choice2 = ""
             while not choice2:
+                decryption_suite = AES.new(sessionKeys[1], AES.MODE_CFB, 'This is an IV456')
                 choice2 = clients[1].recv(1024)
+                choice2 = decryption_suite.decrypt(choice2)
+
             state = 4
         if(state == 4):
-            print(int(choice1.decode("utf-8")),int(choice2.decode("utf-8")))
-            if(int(choice1.decode("utf-8")) > int(choice2.decode("utf-8"))):
+            print(int(choice1))
+            print(choice2)
+            if(int(choice1) > int(choice2)):
+                print("player1 win")
                 player1wins += 1
-            if(int(choice1.decode("utf-8")) < int(choice2.decode("utf-8"))):
+            if(int(choice1) < int(choice2)):
+                print("player2 win")
                 player2wins += 1
 
             #increment the round
@@ -133,6 +149,9 @@ while True:
                 if(player1wins < player2wins):
                     for client in clients:
                         client.send(b"Player 2 Wins")
+                del sessionKeys[:]
+                del clients[:]
+
                 break
             state = 1
 

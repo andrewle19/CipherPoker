@@ -4,24 +4,6 @@ import time
 from Crypto.Cipher import AES
 import os
 
-# tLock = threading.Lock()
-# shutdown = False
-#
-# def receving(name, sock):
-#     while not shutdown:
-#         try:
-#             tLock.acquire()
-#             while True:
-#                 data, addr = sock.recvfrom(1024)
-#                 print str(data)
-#         except:
-#             pass
-#         finally:
-#             tLock.release()
-
-# the state of the game
-gameStates = ['start','key1','key2','turn1','turn2']
-
 # The current player ID
 id = -1
 host = '127.0.0.1'
@@ -38,25 +20,8 @@ print("random key",random_key,"\n")
 encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
 
 
-
-# print(cipher_text)
-# # Decryption
-# plain_text = decryption_suite.decrypt(cipher_text)
-# print(plain_text.decode("utf-8"))
-
 # socket.AF_INET = IPv4, SOCK_DGRAM = UDP
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-
-def sendMsg():
-    global s
-    while True:
-        message = input("")
-        encryption_suite = AES.new("iamakeytest12345", AES.MODE_CFB, 'This is an IV456')
-        cipher_text = encryption_suite.encrypt(message)
-
-        s.sendto(cipher_text, server)
-
 
 
 #bind the socket to the address and random open port since port is set to 0
@@ -67,10 +32,9 @@ s.bind((host, port))
 # start by connecting to the server
 s.connect(server)
 
-# ithread = threading.Thread(target=sendMsg)
-# ithread.daemon = True
-# ithread.start()
 state = 0
+decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
 while True:
     # receive data from server
 
@@ -99,7 +63,6 @@ while True:
     if(state == 1):
         # confirms with server it has received its keys
         data = s.recv(1024)
-        decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
         plain_text = decryption_suite.decrypt(data)
         print(plain_text)
         state = 2
@@ -110,76 +73,55 @@ while True:
         try:
             if(data.decode('utf-8')=="hands"):
                 data = s.recv(1024)
-                hand = (data.decode('utf-8').split(","))
-                print(hand)
+                print("cards:",data)
+                decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+                cards = decryption_suite.decrypt(data)
+                print("decrypt",cards)
+                hand = (cards.decode('utf-8').split(","))
+                print("hand",hand)
         except UnicodeError:
             pass
         state = 3
     if(state == 3):
+
         turn = s.recv(1024)
-        if (turn.decode("utf-8") == "END"):
-            state = 4
-        if(turn.decode('utf-8') == "turn1"):
-            print("Player 1's Turn")
-            if(id == 0):
-                for i in range(len(hand)):
-                    print(i,":",hand[i])
-                choice = int(input("Choose Card for Round: "))
-                s.sendto(bytes(str(hand[choice]).encode("utf-8")),server)
-                hand.pop(choice)
-        if(turn.decode('utf-8') == "turn2"):
-            print("Player 2's Turn")
-            if(id == 1):
-                for i in range(len(hand)):
-                    print(i,":",hand[i])
-                choice = int(input("Choose Card for Round: "))
-                s.sendto(bytes(str(hand[choice]).encode("utf-8")),server)
-                hand.pop(choice)
+
+        try:
+            if(turn.decode("utf-8") == "END"):
+                state = 4
+
+            if(turn.decode('utf-8') == "turn1"):
+                print("Player 1's Turn")
+                if(id == 0):
+                    print("Index : Card")
+                    for i in range(len(hand)):
+                        print(i,":",hand[i])
+                    choice = int(input("Choose Card for Round: "))
+                    encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+                    encryptedChoice = encryption_suite.encrypt(hand[choice].encode("utf-8"))
+                    s.sendto(encryptedChoice,server)
+                    hand.pop(choice)
+
+            if(turn.decode('utf-8') == "turn2"):
+                print("Player 2's Turn")
+                if(id == 1):
+
+                    for i in range(len(hand)):
+                        print(i,":",hand[i])
+                    choice = int(input("Choose Card for Round:"))
+                    encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+                    encryptedChoice = encryption_suite.encrypt(hand[choice].encode("utf-8"))
+                    s.sendto(encryptedChoice,server)
+                    hand.pop(choice)
+        except UnicodeError:
+            pass
+
+
     if(state == 4):
          results = s.recv(1024)
-         print(results)
+         print('\nRESULTS:\n')
+         print(results.decode("utf-8"))
          break
-#
-# rT = threading.Thread(target=receving, args=("RecvThread",s))
-# rT.start()
 
-# encryption_suite = AES.new("iamakeytest12345", AES.MODE_CFB, 'This is an IV456')
-# message = raw_input("cmd-> ")
-# cipher_text = encryption_suite.encrypt(message)
-
-# s.sendto(cipher_text, server)
-
-# quitting = False
-# while not quitting:
-#     try:
-#
-#         data, addr = s.recvfrom(1024)
-#         print("Incoming: ", data, addr)
-#
-#         if(data):
-#             message = raw_input("cmd-> ")
-#             cipher_text = encryption_suite.encrypt(message)
-#             s.sendto(cipher_text, server)
-#         if message == 'q':
-#             quitting = True
-#
-#     except:
-#         pass
-
-#
-# while message != 'q':
-#     if message != '':
-#         cipher_text = encryption_suite.encrypt(message)
-#         s.sendto(cipher_text, server)
-#     tLock.acquire()
-#     message = raw_input("cmd-> ")
-#     tLock.release()
-#
-#     time.sleep(0.2)
-
-# shudown = True
-# rT.join()
-
-# s.sendto(random_key,server)
 
 s.close()
