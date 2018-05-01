@@ -28,6 +28,7 @@ s.bind((host, port))
 s.connect(server)
 
 state = 0
+# Make a Decryptiona and encryption Suite
 decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
 encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
 
@@ -60,7 +61,8 @@ while True:
         data = s.recv(1024)
         # Decrypts the msg
         plain_text = decryption_suite.decrypt(data)
-        print(plain_text)
+        print(plain_text.decode("utf-8"))
+        print("\n")
         state = 2
 
     # in state 2 we receive our hands
@@ -71,14 +73,14 @@ while True:
             data = s.recv(1024)
 
             # decrypt the encrypted hands, the format is card , card , card
-            print("cards:",data)
+            print("Encrypted Hand:",data)
             decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
             cards = decryption_suite.decrypt(data)
-            print("decrypt",cards)
+            print("Decrypted Hand:",cards)
 
             # Split the cards into a list
             hand = (cards.decode('utf-8').split(","))
-            print("hand",hand)
+            print("hand:",hand)
 
         except UnicodeError:
             pass
@@ -99,7 +101,7 @@ while True:
 
             # if signal is turn1 means its player 1 turn
             if(turn.decode('utf-8') == "turn1"):
-                print("Player 1's Turn")
+                print("\nPlayer 1's Turn")
                 if(id == 0):
                     print("Index : Card")
                     for i in range(len(hand)):
@@ -112,7 +114,7 @@ while True:
 
             # if signal is turn2 means its player 1 turn
             if(turn.decode('utf-8') == "turn2"):
-                print("Player 2's Turn")
+                print("\nPlayer 2's Turn")
 
                 if(id == 1):
                     # user chooses the card
@@ -138,5 +140,5 @@ while True:
          print("Exiting Program")
          break
 
-
+# close the socket
 s.close()
