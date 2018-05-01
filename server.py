@@ -128,27 +128,38 @@ while True:
 
             state = 4
         if(state == 4):
-            print(int(choice1))
-            print(choice2)
-            if(int(choice1) > int(choice2)):
-                print("player1 win")
-                player1wins += 1
-            if(int(choice1) < int(choice2)):
-                print("player2 win")
-                player2wins += 1
 
             #increment the round
             round += 1
 
+            print("Player 1 Choice:",int(choice1))
+            print("Player 2 Choice:",int(choice2))
+
+            if(int(choice1) > int(choice2)):
+                print("\nRound %s player1 win" % str(round))
+                player1wins += 1
+            elif(int(choice1) < int(choice2)):
+                print("\nRound %s player2 win" % str(round))
+                player2wins += 1
+            else:
+                print("\nRound Tie")
+
+
+
             if(round == 3):
+                print("\nRESULTS:\n")
                 for client in clients:
                     client.send(b"END")
                 if(player1wins > player2wins):
+                    print("Player 1 Wins!!!")
                     for client in clients:
-                        client.send(b"Player 1 Wins")
+                        client.send(b"Player 1 Wins!!!")
                 if(player1wins < player2wins):
+                    print("Player 2 Wins!!!")
                     for client in clients:
-                        client.send(b"Player 2 Wins")
+                        client.send(b"Player 2 Wins!!!")
+                print("Destroying Session Keys")
+                print("Exiting")
                 del sessionKeys[:]
                 del clients[:]
 
