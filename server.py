@@ -104,11 +104,12 @@ while True:
             # send hand to player 2
             clients[1].send(hand)
 
-            # send to state 2
+            # send to state 2 sleep to make sure there is no race condition
             time.sleep(0.2)
             state = 2
         # state 2- Player1s turn: this is where the choice of player1 is received
         if(state == 2):
+            print("\nRound %s\n" % str(round+1))
             # tell users its players ones turn
             for client in clients:
                 client.send(b"turn1")
@@ -118,7 +119,7 @@ while True:
             while not choice1:
                 decryption_suite = AES.new(sessionKeys[0], AES.MODE_CFB, 'This is an IV456')
                 choice1 = clients[0].recv(1024)
-                print("\nEncrypted Player 1's Choice:", choice1)
+                print("Encrypted Player 1's Choice:", choice1)
                 choice1 = decryption_suite.decrypt(choice1)
 
 
@@ -132,7 +133,7 @@ while True:
             while not choice2:
                 decryption_suite = AES.new(sessionKeys[1], AES.MODE_CFB, 'This is an IV456')
                 choice2 = clients[1].recv(1024)
-                print("\nEncrypted Player 2's Choice:", choice2)
+                print("Encrypted Player 2's Choice:", choice2)
                 choice2 = decryption_suite.decrypt(choice2)
 
             state = 4
@@ -143,19 +144,19 @@ while True:
 
             #increment the round
             round += 1
-            print("\nRound %s" % str(round))
+
             print("Player 1 Choice:",int(choice1))
             print("Player 2 Choice:",int(choice2))
 
             # Main game logic compares player's cards to determine winner
             if(int(choice1) > int(choice2)):
-                print("Round %s player1 win" % str(round))
+                print("\nPlayer1 wins Round %s" % str(round))
                 player1wins += 1
             elif(int(choice1) < int(choice2)):
-                print("Round %s player2 win" % str(round))
+                print("\nPlayer2 wins Round %s" % str(round))
                 player2wins += 1
             else:
-                print("Round Tie")
+                print("\nRound Tie")
 
 
             # if its the third round then we end the game
