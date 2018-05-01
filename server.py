@@ -72,8 +72,8 @@ while True:
                 state = 1
         # State 1: in charge of generating the players hands
         if(state == 1):
-            for client in clients:
-                client.send(b"hands")
+            # for client in clients:
+            #     client.send(b"hands")
             #Generate the keys for bt
             for i in range(3):
                 player1Hand.append(random.randint(1,15))
@@ -155,44 +155,4 @@ while True:
                 break
             state = 1
 
-
-
-
-
-
-
-
-        # if(state == gameStates[1]):
-        #     data = clients[0].recv(1024)
-        #     if data:
-        #         sessionKeys.append(data)
-        #         print(sessionKeys)
-        #         state = gameStates[2]
-        # if(state == gameStates[2]):
-        #     data = clients[1].recv(1024)
-        #     if data:
-        #         sessionKeys.append(data)
-        #         print(sessionKeys)
-        #         state = gameStates[2]
-        # else:
-        #     connection, addr = s.accept()
-        #     print("Denying: ", addr)
-        #     connection.send(b"Max number of players in game")
-        #     connection.close()
-
-        # print(clients)
-        # plain_text = decryption_suite.decrypt(data)
-        # print(plain_text.decode("utf-8"))
-
-        # if addr not in clients:
-        #     clients.append(connection)
-        #     print("Client",addr," joined the game")
-
-
-
-        # for client in clients:
-        #     print("Sending",plain_text)
-        #     s.sendto(plain_text, client)
-    # except:
-    #     pass
 s.close()
