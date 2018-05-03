@@ -158,6 +158,8 @@ while True:
             else:
                 print("\nRound Tie")
 
+            # go back to turn 1
+            state = 2
 
             # if its the third round then we end the game
             # we send the results to the players
@@ -182,13 +184,19 @@ while True:
                     for client in clients:
                         client.send(b"Tie Game")
 
+                # Set up for the next game
                 print("Destroying Session Keys")
-                print("Exiting")
+                print("\nWaiting for New Players")
+                del player1Hand[:]
+                del player2Hand[:]
                 del sessionKeys[:]
                 del clients[:]
-                break
-            # go back to turn 1
-            state = 2
+                playerCount = 0
+                state = 0
+                round = 0
+
+
+
 
 # close the socket
 s.close()
