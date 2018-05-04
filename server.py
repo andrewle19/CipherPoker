@@ -5,6 +5,8 @@ import threading
 from Crypto.Cipher import AES
 
 
+publicKey = b"-ZA\xa1\x8f\x13*v\xae\x13p\xbd\xbd\xce\x9d\xd0"
+
 host = '127.0.0.1'
 port = 5000
 
@@ -61,9 +63,16 @@ while True:
             connection.send(playerid.encode("utf-8"))
             connection.send(b"Welcome to the Game")
 
-            # receive the session key from the client
+            # receive the encrypted session key using server public key from the client
             data = connection.recv(1024)
+            # print("Encrypted Session Key:",data)
+            
+            # decrypt the session key and store it in list
+            decryption_suite = AES.new(publicKey, AES.MODE_CFB, 'This is an IV456')
+            data = decryption_suite.decrypt(data)
             sessionKeys.append(data)
+
+
 
             # encrypt the data based on session key
             encryption_suite = AES.new(sessionKeys[playerCount], AES.MODE_CFB, 'This is an IV456')
@@ -194,6 +203,8 @@ while True:
                 playerCount = 0
                 state = 0
                 round = 0
+                player1wins = 0
+                player2wins = 0
 
 
 

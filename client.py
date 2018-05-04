@@ -4,6 +4,10 @@ import time
 from Crypto.Cipher import AES
 import os
 
+
+# servers public key
+publicKey = b"-ZA\xa1\x8f\x13*v\xae\x13p\xbd\xbd\xce\x9d\xd0"
+
 # The current player ID
 id = -1
 host = '127.0.0.1'
@@ -13,9 +17,15 @@ port = 0
 server = ('127.0.0.1',5000)
 
 # Encryption
-random_key = os.urandom(16)
-print("Session Key",random_key,"\n")
-encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+session_key = os.urandom(16)
+
+
+print("Session Key:",session_key)
+
+# Encrypt the session key using servers public key before sending out
+encryption_suite = AES.new(publicKey, AES.MODE_CFB, 'This is an IV456')
+encryptedKey = encryption_suite.encrypt(session_key)
+print("Encrypted Session Key:",encryptedKey,"\n")
 
 # socket.AF_INET = IPv4, SOCK_DGRAM = UDP
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,8 +39,8 @@ s.connect(server)
 
 state = 0
 # Make a Decryptiona and encryption Suite
-decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
-encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+decryption_suite = AES.new(session_key, AES.MODE_CFB, 'This is an IV456')
+encryption_suite = AES.new(session_key, AES.MODE_CFB, 'This is an IV456')
 
 
 while True:
@@ -53,7 +63,7 @@ while True:
         if(data.decode("utf-8") == "Welcome to the Game"):
 
             print(data.decode("utf-8"))
-            s.sendto(random_key,server)
+            s.sendto(encryptedKey,server)
             state = 1
 
     # state 1 is about confirming the server has received session keys
@@ -74,7 +84,7 @@ while True:
 
             # decrypt the encrypted hands, the format is card , card , card
             print("Encrypted Hand:",data)
-            decryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+            decryption_suite = AES.new(session_key, AES.MODE_CFB, 'This is an IV456')
             cards = decryption_suite.decrypt(data)
             print("Decrypted Hand:",cards)
 
@@ -93,7 +103,7 @@ while True:
         turn = s.recv(1024)
 
         try:
-            encryption_suite = AES.new(random_key, AES.MODE_CFB, 'This is an IV456')
+            encryption_suite = AES.new(session_key, AES.MODE_CFB, 'This is an IV456')
 
             # when the end signal is received move to State 4 the results stage
             if(turn.decode("utf-8") == "END"):
