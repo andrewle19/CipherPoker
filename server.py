@@ -61,12 +61,13 @@ while True:
 
             # welcome the players to game(this triggers event in client)
             connection.send(playerid.encode("utf-8"))
+            time.sleep(0.2)
             connection.send(b"Welcome to the Game")
 
             # receive the encrypted session key using server public key from the client
             data = connection.recv(1024)
             # print("Encrypted Session Key:",data)
-            
+
             # decrypt the session key and store it in list
             decryption_suite = AES.new(publicKey, AES.MODE_CFB, 'This is an IV456')
             data = decryption_suite.decrypt(data)
