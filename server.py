@@ -179,7 +179,7 @@ while True:
 
                 for client in clients:
                     client.send(b"END")
-
+                time.sleep(0.2)
                 # sends the results to all playersdepending on outcome
                 if(player1wins > player2wins):
                     print("Player 1 Wins!!!")
