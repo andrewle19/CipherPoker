@@ -101,7 +101,6 @@ while True:
 
         # receive turn signal from server(3 signals: END, turn1, turn2)
         turn = s.recv(1024)
-        print(turn)
         try:
             encryption_suite = AES.new(session_key, AES.MODE_CFB, 'This is an IV456')
 
