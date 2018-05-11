@@ -117,6 +117,10 @@ while True:
                     for i in range(len(hand)):
                         print(str(i)+")"+str(hand[i]))
                     choice = int(input("Choose Card for Round(use the index): "))
+                    # input validation
+                    while(choice < 0 or choice > len(hand)):
+                        print("Invalid Choice Choose Again")
+                        choice = int(input("Choose Card for Round(use the index): "))
                     #encrypt the card choice and send to server remove it from hand
                     encryptedChoice = encryption_suite.encrypt(hand[choice].encode("utf-8"))
                     s.sendto(encryptedChoice,server)
@@ -132,6 +136,10 @@ while True:
                     for i in range(len(hand)):
                         print(str(i)+")"+str(hand[i]))
                     choice = int(input("Choose Card for Round(use the index): "))
+                    #input validation
+                    while(choice < 0 or choice > len(hand)):
+                        print("Invalid Choice Choose Again")
+                        choice = int(input("Choose Card for Round(use the index): "))
                     #encrypt the card choice and send to server remove it from hand
                     encryptedChoice = encryption_suite.encrypt(hand[choice].encode("utf-8"))
                     s.sendto(encryptedChoice,server)
