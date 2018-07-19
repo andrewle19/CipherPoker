@@ -3,22 +3,7 @@
 <h2>Authors</h2>
 <ul>
   <li>Andrew Le</li>
-  <li>Steve Sanchez</li>
-  <li>Eric Fratzke</li>
-  <li>Syed Hussaini</li>
-  <li>Felicia Aubert</li>
-  <li>Cesar Carrillo</li>
-</ul>
-
-<h2>Contributions</h2>
-<ul>
-  <li>Andrew Le</li>
-  <li>Steve Sanchez</li>
-  <li>Eric Fratzke</li>
-  <li>Syed Hussaini</li>
-  <li>Felicia Aubert</li>
-  <li>Cesar Carrillo</li>
-</ul>
+ 
 
 <h2> Requirements:</h2>
 <ul>
