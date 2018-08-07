@@ -1,6 +1,6 @@
 Cipher Poker 
 =======
-Author: Andrew Le
+Author: Andrew Le  
 Email: andrewle19@gmail.com
 
 ## Introduction
