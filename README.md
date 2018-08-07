@@ -11,6 +11,5 @@ The Cipher Poker program is a secure internet poker program modeled with a serve
 
 ## Commands to Run Code
   1. Run the server: python3 server.py
-  2. Run the client: python3 client.py
-  NOTE:   
-  NEED TO RUN TWO CLIENTS TO PLAY
+  2. Run the client: python3 client.py  
+  NOTE: NEED TO RUN TWO CLIENTS TO PLAY
